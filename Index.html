@@ -3,27 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Red Skullz Heavy Metal Chaos</title>
+<title>Red Skullz Chaos</title>
 <style>
   body {
     margin:0;
-    font-family:"Comic Sans MS",cursive,sans-serif;
-    background:#111;
-    color:#f1c40f;
+    font-family:"Arial Black", Gadget, sans-serif;
+    background:black;
+    color:red;
     overflow-x:hidden;
   }
   header {
-    background:linear-gradient(90deg, black, red);
-    color:yellow;
+    background:black;
+    color:red;
     padding:30px;
     text-align:center;
     font-size:3em;
-    animation: headerPulse 2s infinite alternate;
-    text-shadow: 0 0 15px red, 0 0 30px yellow;
-  }
-  @keyframes headerPulse {
-    from {text-shadow:0 0 10px red,0 0 20px yellow;}
-    to {text-shadow:0 0 25px yellow,0 0 50px red;}
+    text-shadow:0 0 20px red;
   }
   nav {
     display:flex;
@@ -35,17 +30,14 @@
   nav button {
     padding:15px 25px;
     font-weight:bold;
-    border-radius:20px;
-    border:3px solid yellow;
+    border-radius:15px;
+    border:3px solid red;
     background:black;
     color:red;
     cursor:pointer;
     transition:transform .2s;
-    position:relative;
-    overflow:hidden;
-    text-shadow:0 0 5px yellow;
   }
-  nav button:hover {transform:rotate(-10deg) scale(1.3);}
+  nav button:hover {transform:scale(1.2);}
   .main-container {
     display:flex;
     flex-direction:column;
@@ -58,47 +50,51 @@
     max-width:1200px;
     min-height:400px;
     border:5px solid red;
-    border-radius:25px;
+    border-radius:20px;
     background:black;
     overflow:hidden;
-    box-shadow:0 0 60px red, 0 0 20px yellow inset;
     padding:20px;
+    position:relative;
   }
   .skullcat {
     width:80px;
     height:80px;
-    background:url('assets/skullcat.png') center/cover no-repeat;
+    background:url('assets/kitty.png') center/cover no-repeat;
     position:absolute;
     cursor:pointer;
     animation:bounce 1s infinite alternate;
   }
   @keyframes bounce {from{transform:translateY(0);}to{transform:translateY(-30px);}}
+  .logo {
+    width:150px;
+    height:150px;
+    background:url('assets/logo.png') center/cover no-repeat;
+    margin:0 auto 20px auto;
+  }
   .secret {
     display:none;
     margin:20px;
     padding:25px;
-    border:4px groove yellow;
-    background:rgba(255,0,0,0.3);
+    border:4px solid red;
+    background:rgba(255,0,0,0.2);
     font-size:1.5em;
     text-align:center;
-    animation:flicker 1.5s infinite;
-    border-radius:20px;
+    border-radius:15px;
   }
-  @keyframes flicker {0%,18%,22%,25%,53%,57%,100%{opacity:1;}20%,24%,55%{opacity:0;}}
   footer {
     background:black;
     border-top:4px solid red;
     padding:25px;
     text-align:center;
     font-weight:bold;
-    color:yellow;
+    color:red;
   }
   footer a {color:red; text-decoration:none; font-weight:bold;}
   .spark {
     position:absolute;
     width:6px;
     height:6px;
-    background:radial-gradient(circle, yellow, red, transparent);
+    background:radial-gradient(circle, red, yellow, transparent);
     border-radius:50%;
     pointer-events:none;
     animation:sparkAnim 600ms ease-out forwards;
@@ -108,28 +104,31 @@
 </head>
 <body>
 <header>💀 Red Skullz Chaos 💀</header>
+<div class="logo"></div>
 <nav>
-  <button onclick="spawnSkullCat(event)">Spawn Skull Cat</button>
+  <button onclick="spawnSkullCat(event)">Spawn Red Skullz Kitty</button>
   <button onclick="unlockSecret(event)">Reveal Secret</button>
-  <button onclick="crazyMode(event)">Mega CRAZY MODE</button>
+  <button onclick="crazyMode(event)">Activate CRAZY MODE</button>
 </nav>
 <div class="main-container">
   <section class="playground" id="play-area">
-    <p style="font-size:1.3em; color:red;">Catch the skull cats and make chaos happen!</p>
+    <p style="font-size:1.3em; color:red;">Catch the Red Skullz Kitty!</p>
   </section>
   <section class="mini-games" id="mini-games">
-    <p style="font-size:1.3em; color:red;">Mini games appear here when Crazy Mode is ON!</p>
+    <p style="font-size:1.3em; color:red;">Mini games appear here in Crazy Mode!</p>
   </section>
 </div>
-<section class="secret" id="secret">🎉 YOU FOUND THE CHAOTIC SECRET 🎉</section>
+<section class="secret" id="secret">🎉 SECRET UNLOCKED 🎉</section>
 <footer>
 Red Skullz Community — Save as <code>index.html</code><br>
 Join our Discord: <a href="https://discord.gg/eZrfmUyw" target="_blank">Click Here</a>
 </footer>
+
 <script>
 let score=0;
 const play=document.getElementById('play-area');
 const miniGames=document.getElementById('mini-games');
+
 function makeSparks(x,y){
   for(let i=0;i<15;i++){
     const s=document.createElement('div');
@@ -144,6 +143,7 @@ function makeSparks(x,y){
     setTimeout(()=>s.remove(),600);
   }
 }
+
 function spawnSkullCat(e){
   makeSparks(e.clientX,e.clientY);
   const cat=document.createElement('div');
@@ -153,30 +153,31 @@ function spawnSkullCat(e){
   cat.onclick=(ev)=>{
     score+=10;
     makeSparks(ev.clientX,ev.clientY);
-    alert('You caught a Skull Cat! Score: '+score);
+    alert('You caught a Red Skullz Kitty! Score: '+score);
     cat.remove();
   };
   play.appendChild(cat);
 }
+
 function unlockSecret(e){
   makeSparks(e.clientX,e.clientY);
   document.getElementById('secret').style.display='block';
-  alert('The hidden madness has been revealed!');
+  alert('The secret has been revealed!');
 }
+
 function crazyMode(e){
   makeSparks(e.clientX,e.clientY);
-  alert('MEGA CRAZY MODE ENGAGED! Mini-games everywhere!');
-  document.body.style.animation='headerPulse 0.3s infinite alternate';
+  alert('CRAZY MODE ENGAGED! Mini-games activated!');
   setInterval(()=>spawnSkullCat({clientX:innerWidth/2,clientY:innerHeight/2}),150);
-  const games=['Click the Cat','Red-Yellow Memory','Catch the Falling Skull','Skull Maze','Crazy Color Match','Speed Tap','Skull Dodge'];
+  const games=['Click the Red Skullz','Skull Memory','Catch the Falling Skulls','Skull Maze','Color Match','Speed Tap','Skull Dodge'];
   setInterval(()=>{
     const game=document.createElement('div');
     game.style.padding='15px';
     game.style.margin='5px';
-    game.style.border='2px solid yellow';
-    game.style.background='rgba(255,0,0,0.35)';
+    game.style.border='2px solid red';
+    game.style.background='rgba(50,0,0,0.35)';
     game.style.borderRadius='15px';
-    game.style.color='yellow';
+    game.style.color='red';
     game.textContent=games[Math.floor(Math.random()*games.length)];
     miniGames.appendChild(game);
     setTimeout(()=>game.remove(),5000);

@@ -1,101 +1,50 @@
-// Firebase Config
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nekoshi Board Game</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h1>Nekoshi Adventures: Board Game</h1>
 
-let playerId = null;
-let lobbyId = null;
-let playerName = "";
-let coins = 0;
-let boardSize = 10;
-let board = [];
+<!-- Lobby Screen -->
+<div id="lobby-screen">
+  <h2>Create or Join Lobby</h2>
+  <input type="text" id="lobbyName" placeholder="Lobby Name">
+  <input type="text" id="lobbyPassword" placeholder="Password (Optional)">
+  <button id="createBtn">Create Lobby</button>
+  <button id="joinBtn">Join Lobby</button>
+  <h3>Public Lobbies</h3>
+  <ul id="publicLobbies"></ul>
+</div>
 
-// Lobby Functions
-function createLobby() {
-  const name = document.getElementById("lobbyName").value;
-  const password = document.getElementById("lobbyPassword").value;
-  db.collection('lobbies').add({
-    name, password, players: [], turn: null, board: Array(100).fill(null)
-  }).then(doc => {
-    lobbyId = doc.id;
-    document.getElementById("lobby-screen").style.display="none";
-    document.getElementById("character-selection").style.display="block";
-  });
-}
+<!-- Character Selection -->
+<div id="character-selection" style="display:none;">
+  <h2>Select Your Character</h2>
+  <select id="characters">
+    <option>REN MORIKAWA</option>
+    <option>YUI MIZUKI</option>
+    <option>EMILIANO MORALES</option>
+    <option>HUNTER WHITMORE</option>
+    <option>JASPER VOSS</option>
+    <option>MIO TOJO</option>
+  </select>
+  <input type="text" id="customName" placeholder="Custom Character">
+  <button id="startBtn">Start Game</button>
+</div>
 
-function joinLobby() {
-  const name = document.getElementById("lobbyName").value;
-  const password = document.getElementById("lobbyPassword").value;
-  db.collection('lobbies').where("name","==",name).get().then(snapshot => {
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      if(data.password === password){
-        lobbyId = doc.id;
-        document.getElementById("lobby-screen").style.display="none";
-        document.getElementById("character-selection").style.display="block";
-      }
-    });
-  });
-}
+<!-- Game Screen -->
+<div id="game-screen" style="display:none;">
+  <h2 id="playerName"></h2>
+  <p>Coins: <span id="coins">0</span></p>
+  <p>Turn: <span id="currentTurn">Waiting...</span></p>
+  <button id="rollBtn">Roll Dice</button>
+  <div id="board"></div>
+  <div id="log"></div>
+</div>
 
-// Character Selection
-function startGame() {
-  const select = document.getElementById("characters").value;
-  const custom = document.getElementById("customName").value;
-  playerName = custom || select;
-  playerId = Math.random().toString(36).substr(2, 9);
-  document.getElementById("playerName").textContent = `Player: ${playerName}`;
-  document.getElementById("character-selection").style.display="none";
-  document.getElementById("game-screen").style.display="block";
-  initBoard();
-}
-
-// Initialize Board
-function initBoard() {
-  const boardDiv = document.getElementById("board");
-  boardDiv.innerHTML = "";
-  board = Array(100).fill(null);
-  for(let i=0;i<10;i++) board[Math.floor(Math.random()*100)] = "coin";
-  for(let i=0;i<5;i++) board[Math.floor(Math.random()*100)] = "demon";
-  for(let i=0;i<5;i++) board[Math.floor(Math.random()*100)] = "spirit";
-
-  for(let i=0;i<100;i++){
-    const div = document.createElement("div");
-    div.className = "tile";
-    div.id = "tile-"+i;
-    if(board[i]) div.classList.add(board[i]);
-    boardDiv.appendChild(div);
-  }
-}
-
-// Dice Roll
-let position = 0;
-function rollDice() {
-  const roll = Math.floor(Math.random()*6)+1;
-  log(`${playerName} rolled a ${roll}`);
-  movePlayer(roll);
-}
-
-// Move Player
-function movePlayer(roll) {
-  document.getElementById("tile-"+position).classList.remove("player");
-  position += roll;
-  if(position>=100) position=99;
-  document.getElementById("tile-"+position).classList.add("player");
-  handleTile(position);
-}
-
-// Tile Effects
-function handleTile(pos) {
-  const tile = board[pos];
-  if(tile==="coin") { coins+=5; document.getElementById("coins").textContent=coins; log("Collected 5 Fishies!"); board[pos]=null; }
-  if(tile==="demon") log("Fight Demon!"); 
-  if(tile==="spirit") log("Help Spirit!"); 
-}
-
-// Logging
-function log(msg) { document.getElementById("log").textContent=msg; }
+<script src="script.js"></script>
+</body>
+</html>

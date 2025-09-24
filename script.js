@@ -45,17 +45,3 @@ def make_api_request(api_path, method='GET', data=None):
 
 entities = make_api_request(f'apps/68d4356eacac7e3e7af0aa51/entities/Campaign')
 print(entities)
-
-# Python Example: Updating an Entity
-# Filterable fields: name, description, dm_id, setting, level_range, player_count, status, custom_rules, session_notes
-def update_entity(entity_id, update_data):
-    response = requests.put(
-        f'https://app.base44.com/api/apps/68d4356eacac7e3e7af0aa51/entities/Campaign/{entity_id}',
-        headers={
-            'api_key': '90aa4174952744078df804c355941df1',
-            'Content-Type': 'application/json'
-        },
-        json=update_data
-    )
-    response.raise_for_status()
-    return response.json()

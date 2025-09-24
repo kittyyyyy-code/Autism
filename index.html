@@ -5,10 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nekoshi Board Game</title>
 <link rel="stylesheet" href="style.css">
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-auth-compat.js"></script>
 </head>
 <body>
 <h1>Nekoshi Adventures: Board Game</h1>
@@ -18,8 +14,8 @@
   <h2>Create or Join Lobby</h2>
   <input type="text" id="lobbyName" placeholder="Lobby Name">
   <input type="text" id="lobbyPassword" placeholder="Password (Optional)">
-  <button onclick="createLobby()">Create Lobby</button>
-  <button onclick="joinLobby()">Join Lobby</button>
+  <button id="createBtn">Create Lobby</button>
+  <button id="joinBtn">Join Lobby</button>
   <h3>Public Lobbies</h3>
   <ul id="publicLobbies"></ul>
 </div>
@@ -36,7 +32,7 @@
     <option>MIO TOJO</option>
   </select>
   <input type="text" id="customName" placeholder="Custom Character">
-  <button onclick="startGame()">Start Game</button>
+  <button id="startBtn">Start Game</button>
 </div>
 
 <!-- Game Screen -->
@@ -44,7 +40,7 @@
   <h2 id="playerName"></h2>
   <p>Coins: <span id="coins">0</span></p>
   <p>Turn: <span id="currentTurn">Waiting...</span></p>
-  <button onclick="rollDice()">Roll Dice</button>
+  <button id="rollBtn">Roll Dice</button>
   <div id="board"></div>
   <div id="log"></div>
 </div>

@@ -1,34 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Kitty World Customizer</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kitty Designer</title>
 <style>
-  html, body {
-    margin: 0; padding: 0;
-    width: 100%; height: 100%;
+  body {
+    margin: 0;
     overflow: hidden;
     background: #b7eaff;
     touch-action: none;
     font-family: "Poppins", sans-serif;
   }
-
   #game {
+    width: 100vw;
+    height: 100vh;
     position: relative;
-    width: 100vw; height: 100vh;
     background: url('place_meadow.png') center/cover no-repeat;
   }
-
   #kitty {
     position: absolute;
-    width: 128px; height: 128px;
+    width: 128px;
+    height: 128px;
     background: url('kitty_stand.png') center/contain no-repeat;
     image-rendering: pixelated;
-    transition: transform 0.05s linear;
-    filter: hue-rotate(0deg) saturate(1) brightness(1);
   }
-
+  #drawCanvas {
+    position: absolute;
+    top: 0; left: 0;
+    pointer-events: none;
+  }
   #nameTag {
     position: absolute;
     top: -25px;
@@ -39,181 +40,172 @@
     text-shadow: 1px 1px 4px #000;
     font-size: 16px;
   }
-
   #joystick {
     position: absolute;
-    bottom: 30px; left: 30px;
-    width: 140px; height: 140px;
+    bottom: 30px;
+    left: 30px;
+    width: 140px;
+    height: 140px;
     border-radius: 50%;
     background: rgba(255,255,255,0.15);
     border: 2px solid rgba(255,255,255,0.4);
-    touch-action: none;
   }
-
   #knob {
     position: absolute;
-    width: 60px; height: 60px;
-    top: 40px; left: 40px;
+    width: 60px;
+    height: 60px;
+    top: 40px;
+    left: 40px;
     border-radius: 50%;
     background: rgba(255,255,255,0.9);
   }
-
-  #controls {
+  #tools {
     position: absolute;
-    top: 20px; right: 20px;
+    top: 10px; right: 10px;
     background: rgba(255,255,255,0.8);
-    padding: 12px;
-    border-radius: 12px;
-    text-align: center;
+    padding: 10px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
   }
-
-  #controls label {
-    display: block;
-    font-size: 14px;
-    font-weight: bold;
-    margin-top: 5px;
-  }
-
-  #controls input {
-    width: 100px;
+  button, input[type=color] {
+    font-size: 16px;
   }
 </style>
 </head>
 <body>
-
 <div id="game">
   <div id="kitty">
+    <canvas id="drawCanvas" width="128" height="128"></canvas>
     <div id="nameTag"></div>
   </div>
 
-  <div id="joystick"><div id="knob"></div></div>
+  <div id="joystick">
+    <div id="knob"></div>
+  </div>
 
-  <div id="controls">
-    <label>Hue</label>
-    <input type="range" id="hue" min="0" max="360" value="0">
-    <label>Saturation</label>
-    <input type="range" id="sat" min="0" max="3" step="0.1" value="1">
-    <label>Brightness</label>
-    <input type="range" id="bright" min="0.5" max="2" step="0.1" value="1">
+  <div id="tools">
+    <input type="color" id="colorPicker" value="#ff69b4">
+    <button id="drawBtn">🎨 Draw</button>
+    <button id="resetBtn">🧼 Clear</button>
   </div>
 </div>
 
 <script>
   const kitty = document.getElementById("kitty");
   const nameTag = document.getElementById("nameTag");
+  const canvas = document.getElementById("drawCanvas");
+  const ctx = canvas.getContext("2d");
   const joystick = document.getElementById("joystick");
   const knob = document.getElementById("knob");
-  const hue = document.getElementById("hue");
-  const sat = document.getElementById("sat");
-  const bright = document.getElementById("bright");
 
-  let username = prompt("Enter your username:") || "Kitty";
+  const username = prompt("Enter your username:") || "Kitty";
   nameTag.textContent = username;
 
   let pos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
   let vel = { x: 0, y: 0 };
-  let joy = { active: false, x: 0, y: 0 };
   const speed = 3;
-  let frame = 0;
-  let dir = "front";
-  let lastFrame = 0;
 
+  let joy = { active: false, startX: 0, startY: 0, x: 0, y: 0 };
+
+  let drawing = false;
+  let drawMode = false;
+  const colorPicker = document.getElementById("colorPicker");
+
+  // Movement loop
   function update() {
     pos.x += vel.x;
     pos.y += vel.y;
 
-    // Stay on screen
     pos.x = Math.max(0, Math.min(window.innerWidth - 128, pos.x));
     pos.y = Math.max(0, Math.min(window.innerHeight - 128, pos.y));
 
     kitty.style.left = pos.x + "px";
     kitty.style.top = pos.y + "px";
 
-    const now = performance.now();
-
-    // Walking animation
-    if (vel.x === 0 && vel.y === 0) {
-      kitty.style.backgroundImage = "url('kitty_stand.png')";
-    } else if (now - lastFrame > 150) {
-      frame = (frame + 1) % 2;
-      lastFrame = now;
-      if (dir === "front")
-        kitty.style.backgroundImage = `url('kitty_walk_front${frame + 1}.png')`;
-      else if (dir === "back")
-        kitty.style.backgroundImage = `url('kitty_walk_back${frame + 1}.png')`;
-      else if (dir === "side")
-        kitty.style.backgroundImage = `url('kitty_walk_side${frame + 1}.png')`;
-    }
-
     requestAnimationFrame(update);
   }
 
   // Touch joystick
   joystick.addEventListener("touchstart", e => {
+    e.preventDefault();
     joy.active = true;
     const t = e.touches[0];
     joy.startX = t.clientX;
     joy.startY = t.clientY;
   });
-
   joystick.addEventListener("touchmove", e => {
+    e.preventDefault();
     if (!joy.active) return;
     const t = e.touches[0];
     const dx = t.clientX - joy.startX;
     const dy = t.clientY - joy.startY;
     const dist = Math.min(Math.sqrt(dx*dx + dy*dy), 50);
     const angle = Math.atan2(dy, dx);
-
     joy.x = Math.cos(angle) * dist;
     joy.y = Math.sin(angle) * dist;
-
     knob.style.left = 40 + joy.x + "px";
     knob.style.top = 40 + joy.y + "px";
-
     vel.x = (joy.x / 50) * speed;
     vel.y = (joy.y / 50) * speed;
-
-    if (Math.abs(vel.x) > Math.abs(vel.y)) {
-      dir = "side";
-      kitty.style.transform = vel.x < 0 ? "scaleX(-1)" : "scaleX(1)";
-    } else {
-      dir = vel.y > 0 ? "front" : "back";
-    }
   });
-
-  joystick.addEventListener("touchend", () => {
+  joystick.addEventListener("touchend", e => {
+    e.preventDefault();
     joy.active = false;
     vel.x = vel.y = 0;
     knob.style.left = "40px";
     knob.style.top = "40px";
   });
 
-  // Keyboard controls
+  // Keyboard movement (for testing)
   const keys = {};
   window.addEventListener("keydown", e => keys[e.key] = true);
   window.addEventListener("keyup", e => keys[e.key] = false);
 
-  function keyboardLoop() {
+  function handleKeys() {
     vel.x = vel.y = 0;
-    if (keys.ArrowUp || keys.w) { vel.y = -speed; dir = "back"; }
-    if (keys.ArrowDown || keys.s) { vel.y = speed; dir = "front"; }
-    if (keys.ArrowLeft || keys.a) { vel.x = -speed; dir = "side"; kitty.style.transform = "scaleX(-1)"; }
-    if (keys.ArrowRight || keys.d) { vel.x = speed; dir = "side"; kitty.style.transform = "scaleX(1)"; }
-    requestAnimationFrame(keyboardLoop);
+    if (keys.ArrowUp || keys.w) vel.y = -speed;
+    if (keys.ArrowDown || keys.s) vel.y = speed;
+    if (keys.ArrowLeft || keys.a) vel.x = -speed;
+    if (keys.ArrowRight || keys.d) vel.x = speed;
+    requestAnimationFrame(handleKeys);
   }
 
-  keyboardLoop();
+  // Drawing on cat
+  document.getElementById("drawBtn").onclick = () => {
+    drawMode = !drawMode;
+    canvas.style.pointerEvents = drawMode ? "auto" : "none";
+  };
+
+  canvas.addEventListener("touchstart", e => {
+    if (!drawMode) return;
+    drawing = true;
+    const rect = canvas.getBoundingClientRect();
+    const t = e.touches[0];
+    ctx.beginPath();
+    ctx.moveTo(t.clientX - rect.left, t.clientY - rect.top);
+  });
+
+  canvas.addEventListener("touchmove", e => {
+    if (!drawing) return;
+    const rect = canvas.getBoundingClientRect();
+    const t = e.touches[0];
+    ctx.strokeStyle = colorPicker.value;
+    ctx.lineWidth = 4;
+    ctx.lineCap = "round";
+    ctx.lineTo(t.clientX - rect.left, t.clientY - rect.top);
+    ctx.stroke();
+  });
+
+  canvas.addEventListener("touchend", () => drawing = false);
+
+  document.getElementById("resetBtn").onclick = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  };
+
+  handleKeys();
   update();
-
-  // 🎨 Kitty color customizer
-  function updateColor() {
-    const hueVal = hue.value;
-    const satVal = sat.value;
-    const brightVal = bright.value;
-    kitty.style.filter = `hue-rotate(${hueVal}deg) saturate(${satVal}) brightness(${brightVal})`;
-  }
-
-  hue.oninput = sat.oninput = bright.oninput = updateColor;
 </script>
 </body>
 </html>

@@ -1,63 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kiss, Marry, Kill</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kiss, Marry, Kill 💋💍💀</title>
+
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Shrikhand&display=swap');
+
     body {
-      background: linear-gradient(135deg, #ffb6c1, #ffc3a0);
-      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      background: linear-gradient(135deg, #ff90b3, #ffaaff, #a0a7ff);
+      background-size: 400% 400%;
+      animation: gradientShift 10s ease infinite;
+      font-family: 'Shrikhand', cursive;
+      color: #fff;
       text-align: center;
-      padding: 50px;
-      color: #333;
     }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
     h1 {
-      font-size: 2.5em;
-      margin-bottom: 20px;
+      font-size: 3em;
+      text-shadow: 0 0 10px #fff, 0 0 20px #ff5ee4, 0 0 40px #ff00cc;
+      margin-top: 60px;
+      animation: pulse 1.5s infinite alternate;
     }
+
+    @keyframes pulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.1); }
+    }
+
     .options {
       display: flex;
       justify-content: center;
       gap: 20px;
-      margin: 20px 0;
       flex-wrap: wrap;
+      margin: 40px 0;
     }
+
     .person {
-      background: white;
-      border-radius: 10px;
-      padding: 15px 25px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      font-size: 1.3em;
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid #fff;
+      border-radius: 15px;
+      padding: 20px 30px;
+      font-size: 1.5em;
+      color: #fff;
       cursor: pointer;
-      transition: 0.2s;
+      text-shadow: 0 0 8px #fff, 0 0 12px #ff00c8;
+      transition: 0.3s ease;
+      box-shadow: 0 0 15px #fff;
     }
+
     .person:hover {
-      background: #ffebf0;
-      transform: scale(1.05);
+      transform: rotate(-3deg) scale(1.1);
+      background: rgba(255, 255, 255, 0.35);
     }
+
     button {
-      background: #ff4081;
+      background: #ff00cc;
       color: white;
       border: none;
-      border-radius: 10px;
-      padding: 10px 20px;
-      font-size: 1em;
+      border-radius: 12px;
+      padding: 12px 25px;
+      font-size: 1.2em;
       cursor: pointer;
-      transition: 0.2s;
+      box-shadow: 0 0 20px #ff00cc, 0 0 40px #ff77e9;
+      transition: 0.3s ease;
     }
+
     button:hover {
-      background: #ff1e6e;
+      transform: scale(1.1);
+      background: #ff4fe1;
+    }
+
+    footer {
+      position: absolute;
+      bottom: 10px;
+      width: 100%;
+      text-align: center;
+      color: #fff;
+      font-size: 0.9em;
+      text-shadow: 0 0 5px #fff;
     }
   </style>
 </head>
 <body>
 
-  <h1>Kiss, Marry, Kill 💋💍💀</h1>
+  <h1>Kiss 💋 Marry 💍 Kill 💀</h1>
   <div id="game">
     <div id="options" class="options"></div>
-    <button onclick="newRound()">New Round</button>
+    <button onclick="newRound()">💫 New Round 💫</button>
   </div>
+
+  <footer>Made with chaos + glitter ✨</footer>
 
   <script>
     const names = [
@@ -70,8 +113,8 @@
       "Asher's mom",
       "Asher's sister",
       "CD",
-      "Zay"
-      "Snowy"
+      "Zay",
+      "Snowy" // ❄️ added Snowy here!
     ];
 
     function getRandomOptions() {
@@ -94,15 +137,12 @@
     }
 
     function chooseAction(name) {
-      const action = prompt(`What do you choose for ${name}? (kiss / marry / kill)`);
-      if (action && ["kiss", "marry", "kill"].includes(action.toLowerCase())) {
-        alert(`You chose to ${action} ${name}!`);
-      } else {
-        alert("Please type kiss, marry, or kill.");
-      }
+      const actions = ["kiss 💋", "marry 💍", "kill 💀"];
+      const randomAction = actions[Math.floor(Math.random() * actions.length)];
+      alert(`You chose to ${randomAction} ${name}!`);
     }
 
-    // Start the first round
+    // Start game on load
     newRound();
   </script>
 

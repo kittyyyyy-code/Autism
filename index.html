@@ -1,150 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kiss, Marry, Kill 💋💍💀</title>
-
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Shrikhand&display=swap');
-
-    body {
-      margin: 0;
-      padding: 0;
-      overflow-x: hidden;
-      background: linear-gradient(135deg, #ff90b3, #ffaaff, #a0a7ff);
-      background-size: 400% 400%;
-      animation: gradientShift 10s ease infinite;
-      font-family: 'Shrikhand', cursive;
-      color: #fff;
-      text-align: center;
-    }
-
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    h1 {
-      font-size: 3em;
-      text-shadow: 0 0 10px #fff, 0 0 20px #ff5ee4, 0 0 40px #ff00cc;
-      margin-top: 60px;
-      animation: pulse 1.5s infinite alternate;
-    }
-
-    @keyframes pulse {
-      from { transform: scale(1); }
-      to { transform: scale(1.1); }
-    }
-
-    .options {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      flex-wrap: wrap;
-      margin: 40px 0;
-    }
-
-    .person {
-      background: rgba(255, 255, 255, 0.2);
-      border: 2px solid #fff;
-      border-radius: 15px;
-      padding: 20px 30px;
-      font-size: 1.5em;
-      color: #fff;
-      cursor: pointer;
-      text-shadow: 0 0 8px #fff, 0 0 12px #ff00c8;
-      transition: 0.3s ease;
-      box-shadow: 0 0 15px #fff;
-    }
-
-    .person:hover {
-      transform: rotate(-3deg) scale(1.1);
-      background: rgba(255, 255, 255, 0.35);
-    }
-
-    button {
-      background: #ff00cc;
-      color: white;
-      border: none;
-      border-radius: 12px;
-      padding: 12px 25px;
-      font-size: 1.2em;
-      cursor: pointer;
-      box-shadow: 0 0 20px #ff00cc, 0 0 40px #ff77e9;
-      transition: 0.3s ease;
-    }
-
-    button:hover {
-      transform: scale(1.1);
-      background: #ff4fe1;
-    }
-
-    footer {
-      position: absolute;
-      bottom: 10px;
-      width: 100%;
-      text-align: center;
-      color: #fff;
-      font-size: 0.9em;
-      text-shadow: 0 0 5px #fff;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kitty World</title>
+<style>
+  html, body {
+    margin: 0; padding: 0; overflow: hidden;
+    background: #aee2ff;
+    touch-action: none;
+    font-family: "Poppins", sans-serif;
+  }
+  #game {
+    position: relative;
+    width: 100vw; height: 100vh;
+    background: url('place1.png') center/cover no-repeat;
+    overflow: hidden;
+  }
+  #kitty {
+    position: absolute;
+    width: 64px; height: 64px;
+    background: url('kitty_stand.png') center/contain no-repeat;
+    transition: background-image 0.1s;
+  }
+  #joystick {
+    position: absolute;
+    bottom: 20px; left: 20px;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    border: 2px solid rgba(255,255,255,0.4);
+    touch-action: none;
+  }
+  #stick {
+    position: absolute;
+    top: 35px; left: 35px;
+    width: 50px; height: 50px;
+    background: rgba(255,255,255,0.5);
+    border-radius: 50%;
+    transition: 0.1s;
+  }
+  #usernameBox {
+    position: absolute; top: 30%; left: 50%; transform: translateX(-50%);
+    background: white; color: black; padding: 20px; border-radius: 12px;
+    display: flex; flex-direction: column; gap: 10px; text-align: center;
+  }
+  #usernameBox input { padding: 8px; border: 1px solid #ccc; border-radius: 8px; }
+  #usernameBox button { background: #ff8dcf; border: none; color: white; padding: 8px; border-radius: 8px; }
+  #locationName {
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    font-size: 20px; font-weight: bold; color: white; text-shadow: 1px 1px 3px #000;
+  }
+</style>
 </head>
 <body>
+<div id="game">
+  <div id="kitty"></div>
+  <div id="locationName">🌸 Meadow</div>
+  <div id="joystick"><div id="stick"></div></div>
+</div>
 
-  <h1>Kiss 💋 Marry 💍 Kill 💀</h1>
-  <div id="game">
-    <div id="options" class="options"></div>
-    <button onclick="newRound()">💫 New Round 💫</button>
-  </div>
+<div id="usernameBox">
+  <h3>Enter your name</h3>
+  <input id="usernameInput" placeholder="Kitty name..." />
+  <button onclick="startGame()">Start</button>
+</div>
 
-  <footer>Made with chaos + glitter ✨</footer>
+<script>
+let kitty = document.getElementById("kitty");
+let stick = document.getElementById("stick");
+let game = document.getElementById("game");
+let usernameBox = document.getElementById("usernameBox");
+let username = "";
+let x = window.innerWidth / 2 - 32;
+let y = window.innerHeight / 2 - 32;
+let dir = "down";
+let moving = false;
+let frame = 0;
+let place = 1;
 
-  <script>
-    const names = [
-      "Dash",
-      "Pizza",
-      "Asher",
-      "Audric",
-      "Shadic",
-      "So so",
-      "Asher's mom",
-      "Asher's sister",
-      "CD",
-      "Zay",
-      "Snowy" // ❄️ added Snowy here!
-    ];
+function startGame() {
+  username = document.getElementById("usernameInput").value.trim() || "Kitty";
+  localStorage.setItem("kittyName", username);
+  usernameBox.style.display = "none";
+  kitty.style.left = x + "px";
+  kitty.style.top = y + "px";
+  loop();
+}
 
-    function getRandomOptions() {
-      const shuffled = [...names].sort(() => 0.5 - Math.random());
-      return shuffled.slice(0, 3);
-    }
+function loop() {
+  if (moving) {
+    moveKitty();
+    animateKitty();
+  } else {
+    kitty.style.backgroundImage = `url('kitty_stand.png')`;
+  }
+  requestAnimationFrame(loop);
+}
 
-    function newRound() {
-      const optionsDiv = document.getElementById("options");
-      const roundNames = getRandomOptions();
-      optionsDiv.innerHTML = "";
+function moveKitty() {
+  const speed = 2.5;
+  if (dir === "up") y -= speed;
+  if (dir === "down") y += speed;
+  if (dir === "left") x -= speed;
+  if (dir === "right") x += speed;
 
-      roundNames.forEach(name => {
-        const div = document.createElement("div");
-        div.className = "person";
-        div.textContent = name;
-        div.onclick = () => chooseAction(name);
-        optionsDiv.appendChild(div);
-      });
-    }
+  // boundaries
+  x = Math.max(0, Math.min(x, window.innerWidth - 64));
+  y = Math.max(0, Math.min(y, window.innerHeight - 64));
 
-    function chooseAction(name) {
-      const actions = ["kiss 💋", "marry 💍", "kill 💀"];
-      const randomAction = actions[Math.floor(Math.random() * actions.length)];
-      alert(`You chose to ${randomAction} ${name}!`);
-    }
+  kitty.style.left = x + "px";
+  kitty.style.top = y + "px";
 
-    // Start game on load
-    newRound();
-  </script>
+  // "place changing" logic
+  if (x > window.innerWidth - 70) nextPlace();
+}
 
+function animateKitty() {
+  frame++;
+  const step = Math.floor(frame / 10) % 2 + 1;
+  if (dir === "up") kitty.style.backgroundImage = `url('kitty_back_walk${step}.png')`;
+  if (dir === "down") kitty.style.backgroundImage = `url('kitty_walk_front${step}.png')`;
+  if (dir === "left" || dir === "right") kitty.style.backgroundImage = `url('kitty_walk_side${step}.png')`;
+  if (dir === "left") kitty.style.transform = "scaleX(-1)";
+  else kitty.style.transform = "scaleX(1)";
+}
+
+function nextPlace() {
+  place++;
+  if (place > 3) place = 1;
+  const locName = document.getElementById("locationName");
+  if (place === 1) { game.style.background = "url('place1.png') center/cover"; locName.innerText = "🌸 Meadow"; }
+  if (place === 2) { game.style.background = "url('place2.png') center/cover"; locName.innerText = "🏖️ Beach"; }
+  if (place === 3) { game.style.background = "url('place3.png') center/cover"; locName.innerText = "🌙 Night Park"; }
+  x = 10;
+}
+
+//// JOYSTICK CONTROL ////
+const joystick = document.getElementById("joystick");
+let active = false, startX, startY;
+
+joystick.addEventListener("touchstart", e => {
+  active = true;
+  startX = e.touches[0].clientX;
+  startY = e.touches[0].clientY;
+});
+joystick.addEventListener("touchmove", e => {
+  if (!active) return;
+  const dx = e.touches[0].clientX - startX;
+  const dy = e.touches[0].clientY - startY;
+  const dist = Math.min(40, Math.hypot(dx, dy));
+  const angle = Math.atan2(dy, dx);
+  stick.style.transform = `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px)`;
+
+  if (Math.abs(dx) > Math.abs(dy)) {
+    dir = dx > 0 ? "right" : "left";
+  } else {
+    dir = dy > 0 ? "down" : "up";
+  }
+  moving = true;
+});
+joystick.addEventListener("touchend", () => {
+  active = false;
+  stick.style.transform = "translate(0,0)";
+  moving = false;
+});
+</script>
 </body>
 </html>

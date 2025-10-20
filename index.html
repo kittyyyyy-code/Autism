@@ -6,165 +6,162 @@
 <title>Kitty World</title>
 <style>
   html, body {
-    margin: 0; padding: 0; overflow: hidden;
-    background: #aee2ff;
+    margin: 0; padding: 0;
+    width: 100%; height: 100%;
+    background: #b7eaff;
+    overflow: hidden;
     touch-action: none;
     font-family: "Poppins", sans-serif;
   }
+
   #game {
     position: relative;
     width: 100vw; height: 100vh;
-    background: url('place1.png') center/cover no-repeat;
+    background: url('place_meadow.png') center/cover no-repeat;
     overflow: hidden;
   }
+
   #kitty {
     position: absolute;
-    width: 64px; height: 64px;
+    width: 128px; height: 128px;
     background: url('kitty_stand.png') center/contain no-repeat;
-    transition: background-image 0.1s;
+    image-rendering: pixelated;
   }
+
+  #nameTag {
+    position: absolute;
+    top: -25px; left: 0;
+    width: 128px;
+    text-align: center;
+    color: white;
+    font-weight: bold;
+    text-shadow: 1px 1px 4px #000;
+    font-size: 16px;
+  }
+
   #joystick {
     position: absolute;
-    bottom: 20px; left: 20px;
-    width: 120px; height: 120px;
+    bottom: 30px; left: 30px;
+    width: 140px; height: 140px;
     border-radius: 50%;
     background: rgba(255,255,255,0.2);
     border: 2px solid rgba(255,255,255,0.4);
     touch-action: none;
   }
-  #stick {
+
+  #knob {
     position: absolute;
-    top: 35px; left: 35px;
-    width: 50px; height: 50px;
-    background: rgba(255,255,255,0.5);
+    width: 60px; height: 60px;
+    top: 40px; left: 40px;
     border-radius: 50%;
-    transition: 0.1s;
-  }
-  #usernameBox {
-    position: absolute; top: 30%; left: 50%; transform: translateX(-50%);
-    background: white; color: black; padding: 20px; border-radius: 12px;
-    display: flex; flex-direction: column; gap: 10px; text-align: center;
-  }
-  #usernameBox input { padding: 8px; border: 1px solid #ccc; border-radius: 8px; }
-  #usernameBox button { background: #ff8dcf; border: none; color: white; padding: 8px; border-radius: 8px; }
-  #locationName {
-    position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
-    font-size: 20px; font-weight: bold; color: white; text-shadow: 1px 1px 3px #000;
+    background: rgba(255,255,255,0.8);
+    transition: 0.05s;
   }
 </style>
 </head>
 <body>
-<div id="game">
-  <div id="kitty"></div>
-  <div id="locationName">🌸 Meadow</div>
-  <div id="joystick"><div id="stick"></div></div>
-</div>
 
-<div id="usernameBox">
-  <h3>Enter your name</h3>
-  <input id="usernameInput" placeholder="Kitty name..." />
-  <button onclick="startGame()">Start</button>
+<div id="game">
+  <div id="kitty">
+    <div id="nameTag"></div>
+  </div>
+  <div id="joystick"><div id="knob"></div></div>
 </div>
 
 <script>
-let kitty = document.getElementById("kitty");
-let stick = document.getElementById("stick");
-let game = document.getElementById("game");
-let usernameBox = document.getElementById("usernameBox");
-let username = "";
-let x = window.innerWidth / 2 - 32;
-let y = window.innerHeight / 2 - 32;
-let dir = "down";
-let moving = false;
-let frame = 0;
-let place = 1;
+  const kitty = document.getElementById("kitty");
+  const nameTag = document.getElementById("nameTag");
+  const joystick = document.getElementById("joystick");
+  const knob = document.getElementById("knob");
 
-function startGame() {
-  username = document.getElementById("usernameInput").value.trim() || "Kitty";
-  localStorage.setItem("kittyName", username);
-  usernameBox.style.display = "none";
-  kitty.style.left = x + "px";
-  kitty.style.top = y + "px";
-  loop();
-}
+  let username = prompt("Enter your username:");
+  if (!username) username = "Kitty";
+  nameTag.textContent = username;
 
-function loop() {
-  if (moving) {
-    moveKitty();
-    animateKitty();
-  } else {
-    kitty.style.backgroundImage = `url('kitty_stand.png')`;
+  let pos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+  let vel = { x: 0, y: 0 };
+  let joy = { active: false, startX: 0, startY: 0, x: 0, y: 0 };
+
+  const speed = 3;
+  let frame = 0;
+  let dir = "front";
+
+  function moveKitty() {
+    pos.x += vel.x;
+    pos.y += vel.y;
+
+    // Keep kitty inside screen
+    pos.x = Math.max(0, Math.min(window.innerWidth - 128, pos.x));
+    pos.y = Math.max(0, Math.min(window.innerHeight - 128, pos.y));
+
+    kitty.style.left = pos.x + "px";
+    kitty.style.top = pos.y + "px";
+
+    // Choose correct sprite
+    if (vel.x === 0 && vel.y === 0) {
+      kitty.style.backgroundImage = "url('kitty_stand.png')";
+    } else {
+      frame++;
+      if (dir === "front")
+        kitty.style.backgroundImage = `url('kitty_walk_front${(Math.floor(frame/10)%2)+1}.png')`;
+      if (dir === "back")
+        kitty.style.backgroundImage = `url('kitty_walk_back${(Math.floor(frame/10)%2)+1}.png')`;
+      if (dir === "side")
+        kitty.style.backgroundImage = `url('kitty_walk_side${(Math.floor(frame/10)%2)+1}.png')`;
+      kitty.style.transform = vel.x < 0 ? "scaleX(-1)" : "scaleX(1)";
+    }
+
+    nameTag.style.left = "0px";
+    nameTag.style.top = "-25px";
+
+    requestAnimationFrame(moveKitty);
   }
-  requestAnimationFrame(loop);
-}
 
-function moveKitty() {
-  const speed = 2.5;
-  if (dir === "up") y -= speed;
-  if (dir === "down") y += speed;
-  if (dir === "left") x -= speed;
-  if (dir === "right") x += speed;
+  // Joystick controls
+  joystick.addEventListener("touchstart", e => {
+    joy.active = true;
+    joy.startX = e.touches[0].clientX;
+    joy.startY = e.touches[0].clientY;
+  });
 
-  // boundaries
-  x = Math.max(0, Math.min(x, window.innerWidth - 64));
-  y = Math.max(0, Math.min(y, window.innerHeight - 64));
+  joystick.addEventListener("touchmove", e => {
+    if (!joy.active) return;
+    const x = e.touches[0].clientX - joy.startX;
+    const y = e.touches[0].clientY - joy.startY;
+    joy.x = Math.max(-50, Math.min(50, x));
+    joy.y = Math.max(-50, Math.min(50, y));
+    knob.style.left = 40 + joy.x + "px";
+    knob.style.top = 40 + joy.y + "px";
 
-  kitty.style.left = x + "px";
-  kitty.style.top = y + "px";
+    vel.x = (joy.x / 50) * speed;
+    vel.y = (joy.y / 50) * speed;
 
-  // "place changing" logic
-  if (x > window.innerWidth - 70) nextPlace();
-}
+    // Set direction
+    if (Math.abs(vel.x) > Math.abs(vel.y)) dir = "side";
+    else if (vel.y > 0) dir = "front";
+    else dir = "back";
+  });
 
-function animateKitty() {
-  frame++;
-  const step = Math.floor(frame / 10) % 2 + 1;
-  if (dir === "up") kitty.style.backgroundImage = `url('kitty_back_walk${step}.png')`;
-  if (dir === "down") kitty.style.backgroundImage = `url('kitty_walk_front${step}.png')`;
-  if (dir === "left" || dir === "right") kitty.style.backgroundImage = `url('kitty_walk_side${step}.png')`;
-  if (dir === "left") kitty.style.transform = "scaleX(-1)";
-  else kitty.style.transform = "scaleX(1)";
-}
+  joystick.addEventListener("touchend", () => {
+    joy.active = false;
+    vel.x = vel.y = 0;
+    knob.style.left = "40px";
+    knob.style.top = "40px";
+  });
 
-function nextPlace() {
-  place++;
-  if (place > 3) place = 1;
-  const locName = document.getElementById("locationName");
-  if (place === 1) { game.style.background = "url('place1.png') center/cover"; locName.innerText = "🌸 Meadow"; }
-  if (place === 2) { game.style.background = "url('place2.png') center/cover"; locName.innerText = "🏖️ Beach"; }
-  if (place === 3) { game.style.background = "url('place3.png') center/cover"; locName.innerText = "🌙 Night Park"; }
-  x = 10;
-}
+  // Mouse/keyboard (for PC testing)
+  window.addEventListener("keydown", e => {
+    if (e.key === "ArrowUp" || e.key === "w") { vel.y = -speed; dir = "back"; }
+    if (e.key === "ArrowDown" || e.key === "s") { vel.y = speed; dir = "front"; }
+    if (e.key === "ArrowLeft" || e.key === "a") { vel.x = -speed; dir = "side"; kitty.style.transform = "scaleX(-1)"; }
+    if (e.key === "ArrowRight" || e.key === "d") { vel.x = speed; dir = "side"; kitty.style.transform = "scaleX(1)"; }
+  });
+  window.addEventListener("keyup", e => {
+    vel = { x: 0, y: 0 };
+  });
 
-//// JOYSTICK CONTROL ////
-const joystick = document.getElementById("joystick");
-let active = false, startX, startY;
-
-joystick.addEventListener("touchstart", e => {
-  active = true;
-  startX = e.touches[0].clientX;
-  startY = e.touches[0].clientY;
-});
-joystick.addEventListener("touchmove", e => {
-  if (!active) return;
-  const dx = e.touches[0].clientX - startX;
-  const dy = e.touches[0].clientY - startY;
-  const dist = Math.min(40, Math.hypot(dx, dy));
-  const angle = Math.atan2(dy, dx);
-  stick.style.transform = `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px)`;
-
-  if (Math.abs(dx) > Math.abs(dy)) {
-    dir = dx > 0 ? "right" : "left";
-  } else {
-    dir = dy > 0 ? "down" : "up";
-  }
-  moving = true;
-});
-joystick.addEventListener("touchend", () => {
-  active = false;
-  stick.style.transform = "translate(0,0)";
-  moving = false;
-});
+  moveKitty();
 </script>
+
 </body>
 </html>
